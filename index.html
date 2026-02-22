@@ -1,433 +1,693 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#FF6B00">
-<title>☀️ Terrasses Soleil</title>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-512.png">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap');
-:root{--sun:#FF6B00;--sun2:#FFB347;--gold:#FFD700;--mid:#64B5F6;--bg:#09090F;--surface:#111118;--surface2:#1A1A28;--text:#EFEDE9;--muted:#56566A;--border:rgba(255,255,255,0.07)}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column}
-header{flex-shrink:0;background:var(--surface);padding:10px 16px 8px;border-bottom:1px solid rgba(255,107,0,0.2);display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--sun)}
-.hr{text-align:right}
-#clock{font-size:11px;color:var(--muted);letter-spacing:1px}
-#sunPos{font-size:12px;color:var(--sun2);font-weight:500;margin-top:1px}
-.arc-wrap{flex-shrink:0;background:var(--surface);padding:5px 14px 2px;border-bottom:1px solid var(--border)}
-.arc-wrap svg{width:100%;height:42px;display:block}
-.tabs{flex-shrink:0;display:flex;background:var(--surface);border-bottom:1px solid var(--border)}
-.tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s}
-.tab.active{color:var(--sun2);border-bottom-color:var(--sun)}
-#cityBar{display:none;flex-shrink:0;background:var(--surface2);padding:8px 12px;border-bottom:1px solid var(--border);align-items:center;gap:8px}
-#cityBar.show{display:flex}
-#cityInput{flex:1;background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
-#cityInput:focus{border-color:rgba(255,107,0,0.4)}
-#cityBtn{background:var(--sun);color:white;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer}
-#map{flex:1;background:#0a0a14;position:relative;min-height:0}
-.leaflet-container{background:#0a0a14;font-family:'DM Sans',sans-serif}
-.leaflet-popup-content-wrapper{background:var(--surface2);color:var(--text);border:1px solid rgba(255,107,0,0.3);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
-.leaflet-popup-tip{background:var(--surface2)}
-.leaflet-popup-content{margin:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px}
-.leaflet-popup-close-button{color:var(--muted)!important}
-.lp-name{font-weight:600;font-size:14px;margin-bottom:3px}
-.lp-score{font-weight:700;font-size:13px;margin-bottom:6px}
-.lp-score.top{color:var(--gold)}.lp-score.mid{color:var(--mid)}
-.lp-rank{display:inline-block;background:var(--sun);color:white;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-bottom:4px}
-.lp-rank.mid{background:#1565C0}
-.lp-detail{font-size:11px;color:var(--muted);line-height:1.7}
-.fab{position:absolute;right:14px;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 16px rgba(0,0,0,0.5);transition:transform .15s;z-index:400}
-.fab:active{transform:scale(0.88)}
-#btnLocate{bottom:16px;width:52px;height:52px;background:var(--sun);box-shadow:0 4px 24px rgba(255,107,0,0.45)}
-#btnRefresh{bottom:78px;width:42px;height:42px;background:var(--surface2);border:1px solid rgba(255,107,0,0.25);color:var(--sun2);font-size:19px}
-#btnCity{bottom:130px;width:42px;height:42px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:17px}
-#listPanel{display:none;flex-direction:column;background:var(--bg);flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
-.section-head{padding:10px 16px 6px;position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.section-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px}
-.section-label.top{color:var(--gold)}.section-label.mid{color:var(--mid)}
-.section-count{font-size:11px;color:var(--muted)}
-.t-card{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
-.t-card:active{background:var(--surface2)}
-.t-rank-num{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
-.t-rank-num.top{background:rgba(255,215,0,0.15);color:var(--gold);border:1px solid rgba(255,215,0,0.3)}
-.t-rank-num.mid{background:rgba(100,181,246,0.15);color:var(--mid);border:1px solid rgba(100,181,246,0.3)}
-.t-info{flex:1;min-width:0}
-.t-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.t-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.t-score-bar{width:60px;flex-shrink:0}
-.score-num{font-size:13px;font-weight:700;text-align:right}
-.score-num.top{color:var(--gold)}.score-num.mid{color:var(--mid)}
-.bar{height:3px;border-radius:2px;margin-top:3px}
-.bar.top{background:linear-gradient(90deg,var(--sun),var(--gold))}
-.bar.mid{background:linear-gradient(90deg,#1565C0,var(--mid))}
-#overlay{position:fixed;inset:0;z-index:2000;background:rgba(9,9,15,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-#overlay.hide{display:none}
-.spin{width:54px;height:54px;border-radius:50%;border:3px solid rgba(255,107,0,0.15);border-top-color:var(--sun);animation:spin .75s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.load-t{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--sun2)}
-#loadStep{font-size:12px;color:var(--muted);text-align:center;padding:0 40px;line-height:1.5}
-.load-prog{width:200px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden}
-.load-fill{height:100%;background:linear-gradient(90deg,var(--sun),var(--gold));width:0%;transition:width .4s}
-#toast{position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid rgba(255,107,0,0.3);color:var(--text);padding:8px 18px;border-radius:20px;font-size:13px;z-index:3000;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none}
-#toast.show{opacity:1}
-.err-box{background:rgba(255,50,50,0.08);border:1px solid rgba(255,80,80,0.25);border-radius:10px;padding:14px 16px;margin:14px;font-size:12px;color:#ff8a80;line-height:1.7}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>☀️ Terrasses Soleil — Requêtes Live</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #1a1a2e;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    /* ── Top nav — matches app exactly ───────────────────────────── */
+    .nav {
+      background: #0f0f1a;
+      border-bottom: 1px solid rgba(255, 180, 0, 0.2);
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      height: 52px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Oswald', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #ffd700;
+      text-transform: uppercase;
+    }
+
+    .nav-sun {
+      font-size: 20px;
+      line-height: 1;
+      filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.7));
+      animation: rotateSun 20s linear infinite;
+    }
+
+    @keyframes rotateSun {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .nav-time {
+      margin-left: auto;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 15px;
+      color: #ffd700;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+      animation: livePulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* ── Tab bar — matches app nav ────────────────────────────────── */
+    .tabs {
+      background: #0f0f1a;
+      border-bottom: 1px solid rgba(255, 180, 0, 0.15);
+      display: flex;
+      flex-shrink: 0;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 4px 9px;
+      text-align: center;
+      font-family: 'Oswald', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.35);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      user-select: none;
+      text-transform: uppercase;
+    }
+
+    .tab.active {
+      color: #ffd700;
+      border-bottom-color: #ffd700;
+    }
+
+    .tab-icon { font-size: 14px; display: block; margin-bottom: 2px; }
+
+    /* ── Stats strip ──────────────────────────────────────────────── */
+    .stats-strip {
+      background: #111125;
+      border-bottom: 1px solid rgba(255,180,0,0.1);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      flex-shrink: 0;
+    }
+
+    .stat-cell {
+      padding: 9px 6px 8px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    .stat-cell:last-child { border-right: none; }
+
+    .stat-val {
+      font-family: 'Oswald', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #ffd700;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .stat-label {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 9px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
+      margin-top: 3px;
+      text-transform: uppercase;
+    }
+
+    /* ── Type breakdown ───────────────────────────────────────────── */
+    .type-bar {
+      background: #0d0d1f;
+      border-bottom: 1px solid rgba(255,180,0,0.08);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      flex-shrink: 0;
+    }
+
+    .type-cell {
+      padding: 7px 4px 6px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .type-cell:last-child { border-right: none; }
+    .type-cell:hover { background: rgba(255,215,0,0.04); }
+    .type-cell.active-filter { background: rgba(255,215,0,0.07); }
+
+    .type-pill-name {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .type-pill-count {
+      font-family: 'Oswald', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 2px;
+      color: #fff;
+    }
+
+    /* ── Column header ────────────────────────────────────────────── */
+    .col-header {
+      background: #0a0a18;
+      border-bottom: 1px solid rgba(255,180,0,0.08);
+      padding: 6px 14px;
+      display: grid;
+      grid-template-columns: 130px 1fr 90px 48px;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .col-h {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+    }
+
+    /* ── Feed ─────────────────────────────────────────────────────── */
+    .feed {
+      flex: 1;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .feed::-webkit-scrollbar { width: 3px; }
+    .feed::-webkit-scrollbar-track { background: transparent; }
+    .feed::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 3px; }
+
+    /* ── Request row ──────────────────────────────────────────────── */
+    .req-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 90px 48px;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.15s;
+      animation: rowIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .req-row:hover { background: rgba(255,215,0,0.03); }
+    .req-row.is-new { background: rgba(255,215,0,0.07); }
+
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Type + location cell */
+    .req-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+    .req-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    .req-location {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .req-coords {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 9px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* Sun bar */
+    .sun-bar-wrap { display: flex; align-items: center; gap: 7px; }
+    .sun-bar-track {
+      flex: 1; height: 3px; border-radius: 99px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .sun-bar-fill {
+      height: 100%; border-radius: 99px;
+      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sun-pct {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      min-width: 30px;
+      text-align: right;
+    }
+
+    /* Zone chip */
+    .zone-chip {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      padding: 2px 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Elapsed */
+    .req-time {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+      text-align: right;
+    }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    .footer {
+      background: #0a0a18;
+      border-top: 1px solid rgba(255,180,0,0.1);
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .footer-text {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 9px;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .footer-right {
+      margin-left: auto;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 9px;
+      color: rgba(255,215,0,0.3);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── New badge flash on nav ───────────────────────────────────── */
+    .new-badge {
+      background: #ef4444;
+      color: #fff;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      border-radius: 99px;
+      padding: 1px 5px;
+      min-width: 18px;
+      text-align: center;
+      line-height: 16px;
+      height: 16px;
+      animation: badgePop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    @keyframes badgePop {
+      from { transform: scale(0.4); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── Scrollbar auto-hide ──────────────────────────────────────── */
+    .feed { scroll-behavior: smooth; }
+  </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">☀ TERRASSES SOLEIL</div>
-  <div class="hr"><div id="clock">--:--</div><div id="sunPos">—</div></div>
-</header>
+  <!-- ── Top nav ──────────────────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <span class="nav-sun">☀</span>
+      TERRASSES SOLEIL
+    </div>
+    <span id="new-badge" class="new-badge" style="display:none">0</span>
+    <div class="nav-dot" style="margin-left:4px"></div>
+    <div class="nav-time" id="clock">--:--:--</div>
+  </nav>
 
-<div class="arc-wrap">
-  <svg viewBox="0 0 400 42">
-    <defs>
-      <linearGradient id="arcG" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style="stop-color:#FF6B00;stop-opacity:0.2"/>
-        <stop offset="50%" style="stop-color:#FFD700;stop-opacity:0.8"/>
-        <stop offset="100%" style="stop-color:#FF6B00;stop-opacity:0.2"/>
-      </linearGradient>
-      <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    </defs>
-    <line x1="8" y1="36" x2="392" y2="36" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-    <path d="M 8 36 Q 200 2 392 36" stroke="url(#arcG)" stroke-width="1.5" fill="none"/>
-    <text x="8" y="42" fill="#56566A" font-size="8" font-family="sans-serif">LEVER</text>
-    <text x="354" y="42" fill="#56566A" font-size="8" font-family="sans-serif">COUCHER</text>
-    <circle id="sunDot" cx="200" cy="19" r="7" fill="#FFD700" filter="url(#glow)"/>
-  </svg>
-</div>
+  <!-- ── Tab bar ──────────────────────────────────────────────────── -->
+  <div class="tabs">
+    <div class="tab" onclick="setTab('carte')">
+      <span class="tab-icon">🗺</span>CARTE
+    </div>
+    <div class="tab" onclick="setTab('top20')">
+      <span class="tab-icon">☀</span>TOP 20
+    </div>
+    <div class="tab" onclick="setTab('exposees')">
+      <span class="tab-icon">🌤</span>EXPOSÉES
+    </div>
+    <div class="tab active" onclick="setTab('live')">
+      <span class="tab-icon">📡</span>LIVE
+    </div>
+  </div>
 
-<div class="tabs">
-  <button class="tab active" id="tabMap">🗺 CARTE</button>
-  <button class="tab" id="tabList">☀ TOP 20</button>
-  <button class="tab" id="tabMid">🌤 20 EXPOSÉES</button>
-</div>
+  <!-- ── Stats strip ──────────────────────────────────────────────── -->
+  <div class="stats-strip">
+    <div class="stat-cell">
+      <div class="stat-val" id="stat-total">0</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" id="stat-active">0</div>
+      <div class="stat-label">Actif</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" id="stat-rps">0/s</div>
+      <div class="stat-label">Débit</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" id="stat-sun">—%</div>
+      <div class="stat-label">☀ Moy.</div>
+    </div>
+  </div>
 
-<div id="cityBar">
-  <input id="cityInput" type="text" placeholder="Ex: Paris, Lyon, Bordeaux..."/>
-  <button id="cityBtn">OK</button>
-</div>
+  <!-- ── Type filter bar ──────────────────────────────────────────── -->
+  <div class="type-bar" id="type-bar">
+    <!-- filled by JS -->
+  </div>
 
-<div id="map"></div>
-<div id="listPanel"></div>
+  <!-- ── Column header ────────────────────────────────────────────── -->
+  <div class="col-header">
+    <div class="col-h">Requête</div>
+    <div class="col-h">Exposition solaire</div>
+    <div class="col-h">Zone</div>
+    <div class="col-h" style="text-align:right">Âge</div>
+  </div>
 
-<button class="fab" id="btnLocate">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
-    <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
-  </svg>
-</button>
-<button class="fab" id="btnRefresh">↻</button>
-<button class="fab" id="btnCity">🏙</button>
+  <!-- ── Feed ─────────────────────────────────────────────────────── -->
+  <div class="feed" id="feed"></div>
 
-<div id="overlay">
-  <div class="spin"></div>
-  <div class="load-t">ANALYSE SOLAIRE</div>
-  <div id="loadStep">Initialisation...</div>
-  <div class="load-prog"><div class="load-fill" id="loadFill"></div></div>
-</div>
-<div id="toast"></div>
+  <!-- ── Footer ───────────────────────────────────────────────────── -->
+  <div class="footer">
+    <div class="nav-dot" style="width:6px;height:6px"></div>
+    <span class="footer-text">Flux en direct · Paris, Île-de-France</span>
+    <span class="footer-right">☀ terrasses-soleil</span>
+  </div>
 
-<!-- Leaflet CSS + JS inline fallback chain -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css"
-      onerror="this.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'"/>
 
 <script>
-// ─── Charger Leaflet avec fallback ───
-(function loadL(urls, i) {
-  if (i >= urls.length) { console.warn('Leaflet non disponible'); return; }
-  var s = document.createElement('script');
-  s.src = urls[i];
-  s.onload = function() { console.log('Leaflet chargé depuis ' + urls[i]); APP.leafletReady(); };
-  s.onerror = function() { loadL(urls, i+1); };
-  document.head.appendChild(s);
-})([
-  'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.min.js'
-], 0);
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const ZONES = [
+  "Marais","Montmartre","Saint-Germain","Bastille","Oberkampf",
+  "République","Nation","Belleville","Pigalle","Châtelet",
+  "Opéra","Batignolles","Canal St-Martin","Buttes-Chaumont",
+  "Ménilmontant","Père-Lachaise","Daumesnil","Vincennes",
+];
 
-// ─── APP ───
-var APP = (function() {
-  var D2R=Math.PI/180, R2D=180/Math.PI;
-  var map=null, solar=null;
-  var userLat=null, userLon=null, currentCity=null;
-  var allTop=[], allMid=[], activeTab='map';
-  var topMarkers=[], midMarkers=[], userMarker=null;
-  var leafletOk=false;
+const TERRASSES = [
+  "Le Perchoir Marais","Café de Flore","Les Deux Magots","Brasserie Lipp",
+  "Chez Janou","Le Baron Rouge","Café Charlot","Le Progrès",
+  "Rosa Bonheur","Pavillon Puebla","La Rotonde","L'Entrepôt",
+  "Le Select","Café Beaubourg","Chez Prune","Le Comptoir du Relais",
+  "Café de la Paix","Chez Paul","Le Pure Café","Café de la Mairie",
+];
 
-  // ── SPA Solar Position ──
-  function julianDay(d) {
-    var Y=d.getUTCFullYear(),M=d.getUTCMonth()+1;
-    var D=d.getUTCDate()+d.getUTCHours()/24+d.getUTCMinutes()/1440+d.getUTCSeconds()/86400;
-    var y=Y,m=M; if(m<=2){y--;m+=12;}
-    var A=Math.floor(y/100),B=2-A+Math.floor(A/4);
-    return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+D+B-1524.5;
+const TYPES = [
+  { key: "TOP 20",   icon: "☀",  color: "#ffd700", bg: "rgba(255,215,0,0.12)",  border: "rgba(255,215,0,0.25)" },
+  { key: "CARTE",    icon: "🗺",  color: "#34d399", bg: "rgba(52,211,153,0.12)", border: "rgba(52,211,153,0.25)" },
+  { key: "EXPOSÉES", icon: "🌤",  color: "#60a5fa", bg: "rgba(96,165,250,0.12)", border: "rgba(96,165,250,0.25)" },
+  { key: "ANALYSE",  icon: "📊", color: "#c084fc", bg: "rgba(192,132,252,0.12)", border: "rgba(192,132,252,0.25)" },
+];
+
+const TYPE_MAP = Object.fromEntries(TYPES.map(t => [t.key, t]));
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let requests = [];
+let total = 0;
+let nextId = 1;
+let newIds = new Set();
+let rpsLog = [];
+let activeFilter = null; // null = all
+let activeTab = 'live';
+
+// Seed initial rows
+for (let i = 0; i < 12; i++) {
+  const type = TYPES[i % 4];
+  const zone = ZONES[i % ZONES.length];
+  requests.push({
+    id: nextId++,
+    type: type.key,
+    zone,
+    terrace: type.key === "CARTE" ? pick(TERRASSES) : null,
+    sun: rnd(58, 98),
+    time: Date.now() - (12 - i) * 12000,
+    lat: (48.85 + (Math.random() - 0.5) * 0.12).toFixed(4),
+    lng: (2.35 + (Math.random() - 0.5) * 0.15).toFixed(4),
+  });
+  total++;
+}
+
+// ─── DOM helpers ──────────────────────────────────────────────────────────────
+const feed = document.getElementById('feed');
+const typebar = document.getElementById('type-bar');
+
+function sunColor(v) {
+  if (v >= 88) return '#ffd700';
+  if (v >= 74) return '#fbbf24';
+  return '#fcd34d';
+}
+
+function elapsedStr(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 10) return 'maintenant';
+  if (s < 60) return s + 's';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + ' min';
+  return Math.floor(m / 60) + 'h';
+}
+
+function makeRow(req, isNew) {
+  const t = TYPE_MAP[req.type];
+  const row = document.createElement('div');
+  row.className = 'req-row' + (isNew ? ' is-new' : '');
+  row.dataset.id = req.id;
+  row.dataset.ts = req.time;
+
+  const pct = req.sun;
+  const col = sunColor(pct);
+  const loc = req.terrace || req.zone;
+
+  row.innerHTML = `
+    <div class="req-meta">
+      <span class="req-type" style="color:${t.color};background:${t.bg};border:1px solid ${t.border}">
+        ${t.icon} ${t.key}
+      </span>
+      <span class="req-location" title="${loc}">${loc}</span>
+      <span class="req-coords">${req.lat}°N · ${req.lng}°E</span>
+    </div>
+    <div class="sun-bar-wrap">
+      <div class="sun-bar-track">
+        <div class="sun-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#fbbf24,${col})"></div>
+      </div>
+      <span class="sun-pct" style="color:${col}">${pct}%</span>
+    </div>
+    <div class="zone-chip" title="${req.zone}">${req.zone}</div>
+    <div class="req-time" data-ts="${req.time}">${elapsedStr(req.time)}</div>
+  `;
+
+  if (isNew) {
+    setTimeout(() => row.classList.remove('is-new'), 2500);
   }
-  function solarPos(date,lat,lon) {
-    var JD=julianDay(date),JC=(JD-2451545)/36525;
-    var M=(357.52911+JC*(35999.05029-0.0001537*JC))%360;
-    var L0=(280.46646+JC*(36000.76983+JC*0.0003032))%360;
-    var C=(1.914602-JC*(0.004817+0.000014*JC))*Math.sin(M*D2R)+(0.019993-0.000101*JC)*Math.sin(2*M*D2R)+0.000289*Math.sin(3*M*D2R);
-    var sL=L0+C,e0=23.4392911-JC*(0.013004167+JC*(1.639e-7-JC*5.036e-7));
-    var RA=Math.atan2(Math.cos(e0*D2R)*Math.sin(sL*D2R),Math.cos(sL*D2R))*R2D/15;
-    var decl=Math.asin(Math.sin(e0*D2R)*Math.sin(sL*D2R))*R2D;
-    var GMST=(280.46061837+360.98564736629*(JD-2451545)+JC*JC*(0.000387933-JC/38710000))%360;
-    var HA=((GMST+lon-RA*15)%360+360)%360;
-    var sinAlt=Math.sin(lat*D2R)*Math.sin(decl*D2R)+Math.cos(lat*D2R)*Math.cos(decl*D2R)*Math.cos(HA*D2R);
-    var alt=Math.asin(Math.max(-1,Math.min(1,sinAlt)))*R2D;
-    if(alt>-0.575){var R=alt>=5?1.02/Math.tan((alt+10.3/(alt+5.11))*D2R)/60:(-12.79+alt*(-0.831+alt*0.1327))/3600;alt+=R;}
-    var cosAz=(Math.sin(decl*D2R)-Math.sin(lat*D2R)*Math.sin(alt*D2R))/(Math.cos(lat*D2R)*Math.cos(alt*D2R));
-    var az=Math.acos(Math.max(-1,Math.min(1,cosAz)))*R2D;
-    if(Math.sin(HA*D2R)>0) az=360-az;
-    return {altitude:alt,azimuth:az};
+  return row;
+}
+
+// ─── Render type bar ──────────────────────────────────────────────────────────
+function renderTypeBar() {
+  typebar.innerHTML = '';
+  TYPES.forEach(t => {
+    const count = requests.filter(r => r.type === t.key).length;
+    const cell = document.createElement('div');
+    cell.className = 'type-cell' + (activeFilter === t.key ? ' active-filter' : '');
+    cell.innerHTML = `
+      <div class="type-pill-name" style="color:${t.color}">${t.icon} ${t.key}</div>
+      <div class="type-pill-count">${count}</div>
+    `;
+    cell.onclick = () => {
+      activeFilter = activeFilter === t.key ? null : t.key;
+      renderAll();
+    };
+    typebar.appendChild(cell);
+  });
+}
+
+// ─── Render full feed ─────────────────────────────────────────────────────────
+function renderAll() {
+  renderTypeBar();
+  feed.innerHTML = '';
+  const toShow = activeFilter
+    ? requests.filter(r => r.type === activeFilter)
+    : requests;
+  toShow.forEach(req => {
+    feed.appendChild(makeRow(req, newIds.has(req.id)));
+  });
+  updateStats();
+}
+
+// ─── Prepend single row ───────────────────────────────────────────────────────
+function prependRow(req) {
+  if (activeFilter && req.type !== activeFilter) return;
+  const row = makeRow(req, true);
+  feed.insertBefore(row, feed.firstChild);
+  // Limit DOM rows to 60
+  while (feed.children.length > 60) {
+    feed.removeChild(feed.lastChild);
   }
-  function sunriseSunset(date,lat,lon) {
-    var JD=julianDay(date),JC=(JD-2451545)/36525;
-    var M=(357.52911+JC*35999.05029)%360,L0=(280.46646+JC*36000.76983)%360;
-    var C=1.9146*Math.sin(M*D2R)+0.02*Math.sin(2*M*D2R);
-    var e0=23.439-JC*0.013,decl=Math.asin(Math.sin(e0*D2R)*Math.sin((L0+C)*D2R))*R2D;
-    var cosHA=(Math.cos(90.833*D2R)-Math.sin(lat*D2R)*Math.sin(decl*D2R))/(Math.cos(lat*D2R)*Math.cos(decl*D2R));
-    if(Math.abs(cosHA)>1) return null;
-    var HAr=Math.acos(cosHA)*R2D,tz=-date.getTimezoneOffset();
-    return {rise:(720-4*(lon+HAr)+tz)/60,set:(720-4*(lon-HAr)+tz)/60};
+}
+
+// ─── Stats update ─────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-total').textContent = total.toLocaleString('fr-FR');
+  document.getElementById('stat-active').textContent = requests.length;
+
+  const now = Date.now();
+  rpsLog = rpsLog.filter(t => now - t < 60000);
+  const rps = (rpsLog.length / 60).toFixed(1);
+  document.getElementById('stat-rps').textContent = rps + '/s';
+
+  if (requests.length) {
+    const avg = Math.round(requests.reduce((s, r) => s + r.sun, 0) / requests.length);
+    document.getElementById('stat-sun').textContent = avg + '%';
   }
+}
 
-  // ── Score exposition ──
-  function exposureScore(t, sol) {
-    if(sol.altitude<=2) return 0;
-    var altS=Math.min(100,sol.altitude*1.9);
-    var h=new Date().getHours()+new Date().getMinutes()/60;
-    var timeS=h>=10&&h<=15?30:h>=8&&h<=17?15:0;
-    var streetAng=((t.lat*173+t.lon*97)%360+360)%360;
-    var diff=Math.abs(((sol.azimuth-streetAng+180)%360)-180);
-    var orientS=(1-diff/180)*30;
-    return Math.min(100,Math.round(altS*0.5+timeS*0.25+orientS*0.25));
-  }
+// ─── Elapsed ticker ───────────────────────────────────────────────────────────
+setInterval(() => {
+  feed.querySelectorAll('.req-time[data-ts]').forEach(el => {
+    el.textContent = elapsedStr(+el.dataset.ts);
+  });
+}, 15000);
 
-  // ── Fetch avec timeout et fallback ──
-  function fetchWithTimeout(url, opts, ms) {
-    return Promise.race([
-      fetch(url, opts),
-      new Promise(function(_,rej){setTimeout(function(){rej(new Error('timeout'));},ms);})
-    ]);
-  }
-  async function fetchAny(urls, opts) {
-    for(var i=0;i<urls.length;i++){
-      try{var r=await fetchWithTimeout(urls[i],opts||{},15000);if(r.ok)return r;}catch(e){continue;}
-    }
-    throw new Error('Serveurs inaccessibles. Vérifie ta connexion internet.');
-  }
+// ─── Clock ────────────────────────────────────────────────────────────────────
+function updateClock() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-  // ── Overpass ──
-  async function fetchCityData(cityName) {
-    setStep('Recherche de la ville...', 8);
-    var geoData=null;
-    var geoUrls=['https://nominatim.openstreetmap.org','https://nominatim.geocoding.ai'];
-    for(var i=0;i<geoUrls.length;i++){
-      try{
-        var r=await fetchWithTimeout(geoUrls[i]+'/search?q='+encodeURIComponent(cityName)+'&format=json&limit=1&addressdetails=1',{headers:{'Accept-Language':'fr','User-Agent':'TerrasesSoleil/1.0'}},10000);
-        if(r.ok){var d=await r.json();if(d.length){geoData=d[0];break;}}
-      }catch(e){continue;}
-    }
-    if(!geoData) throw new Error('Ville "'+cityName+'" introuvable. Vérifie l\'orthographe.');
+// ─── New request generator ────────────────────────────────────────────────────
+let newCount = 0;
+let badgeTimer = null;
 
-    var cityLat=parseFloat(geoData.lat),cityLon=parseFloat(geoData.lon);
-    var bb=geoData.boundingbox;
-    var cName=geoData.display_name.split(',')[0];
-    setStep('Chargement des terrasses de '+cName+'...', 22);
-
-    var query='[out:json][timeout:60];(node["amenity"~"restaurant|cafe|bar"]["outdoor_seating"="yes"]('+bb[0]+','+bb[2]+','+bb[1]+','+bb[3]+');way["amenity"~"restaurant|cafe|bar"]["outdoor_seating"="yes"]('+bb[0]+','+bb[2]+','+bb[1]+','+bb[3]+');node["amenity"~"restaurant|cafe|bar"]["terrace"="yes"]('+bb[0]+','+bb[2]+','+bb[1]+','+bb[3]+');way["amenity"~"restaurant|cafe|bar"]["terrace"="yes"]('+bb[0]+','+bb[2]+','+bb[1]+','+bb[3]+'););out body;>;out skel qt;';
-
-    var ovUrls=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter'];
-    var ovRes=await fetchAny(ovUrls,{method:'POST',body:query});
-    var ovData=await ovRes.json();
-
-    setStep('Analyse des données...', 55);
-    var nodes={},terrasses=[];
-    for(var i=0;i<ovData.elements.length;i++){var el=ovData.elements[i];if(el.type==='node')nodes[el.id]=[el.lat,el.lon];}
-    for(var i=0;i<ovData.elements.length;i++){
-      var el=ovData.elements[i],tags=el.tags||{};
-      if(!['restaurant','cafe','bar'].includes(tags.amenity)) continue;
-      if(tags.outdoor_seating!=='yes'&&tags.terrace!=='yes') continue;
-      var la,lo;
-      if(el.type==='node'){la=el.lat;lo=el.lon;}
-      else if(el.type==='way'&&el.nodes){
-        var pts=el.nodes.map(function(id){return nodes[id];}).filter(Boolean);
-        if(!pts.length) continue;
-        la=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;
-        lo=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;
-      }
-      if(la&&lo) terrasses.push({id:el.id,name:tags.name||'Terrasse',lat:la,lon:lo,cuisine:tags.cuisine,type:tags.amenity});
-    }
-    return {terrasses:terrasses,cityLat:cityLat,cityLon:cityLon,cName:cName};
-  }
-
-  function rankTerrasses(terrasses, sol) {
-    setStep('Score exposition pour '+terrasses.length+' terrasses...', 72);
-    var scored=terrasses.map(function(t){return Object.assign({},t,{score:exposureScore(t,sol)});});
-    scored.sort(function(a,b){return b.score-a.score;});
-    return {top20:scored.slice(0,20), mid20:scored.slice(20).filter(function(t){return t.score>20;}).slice(0,20)};
-  }
-
-  // ── Map ──
-  function initMap(lat, lon) {
-    if(!leafletOk||!window.L) return;
-    if(!map){
-      map=L.map('map',{zoomControl:false,attributionControl:false}).setView([lat,lon],14);
-      var tileUrls=['https://tile.openstreetmap.org/{z}/{x}/{y}.png','https://a.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png','https://b.tile.openstreetmap.org/{z}/{x}/{y}.png'];
-      var tIdx=0,tLayer=null;
-      function nextTile(){
-        if(tIdx>=tileUrls.length)return;
-        if(tLayer)map.removeLayer(tLayer);
-        tLayer=L.tileLayer(tileUrls[tIdx++],{maxZoom:19}).addTo(map);
-        tLayer.on('tileerror',function(){setTimeout(nextTile,300);});
-      }
-      nextTile();
-      L.control.zoom({position:'topright'}).addTo(map);
-      L.control.attribution({prefix:'© OpenStreetMap'}).addTo(map);
-    } else { map.setView([lat,lon],14); }
-  }
-
-  function makeIcon(rank, isTop) {
-    var bg=isTop?'#E65100':'#1565C0',glow=isTop?'rgba(230,81,0,0.5)':'rgba(21,101,192,0.4)';
-    return L.divIcon({html:'<div style="width:28px;height:28px;border-radius:50%;background:'+bg+';color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid rgba(255,255,255,0.9);box-shadow:0 0 10px '+glow+';font-family:sans-serif">'+rank+'</div>',iconSize:[28,28],iconAnchor:[14,14],className:''});
-  }
-
-  function placeMarkers(top, mid) {
-    if(!map||!leafletOk) return;
-    topMarkers.forEach(function(m){map.removeLayer(m);}); topMarkers=[];
-    midMarkers.forEach(function(m){map.removeLayer(m);}); midMarkers=[];
-    top.forEach(function(t,i){
-      var m=L.marker([t.lat,t.lon],{icon:makeIcon(i+1,true)}).addTo(map);
-      m.bindPopup('<div class="lp-name">'+t.name+'</div><span class="lp-rank">☀ TOP '+(i+1)+'</span><div class="lp-score top">Score : '+t.score+'/100</div><div class="lp-detail">📍 '+t.type+' · '+(t.cuisine||'-')+'<br>☀ Altitude : '+(solar?solar.altitude.toFixed(1):'?')+'°<br>🧭 Azimut : '+(solar?solar.azimuth.toFixed(0):'?')+'°</div>');
-      topMarkers.push(m);
-    });
-    mid.forEach(function(t,i){
-      var m=L.marker([t.lat,t.lon],{icon:makeIcon(i+1,false)}).addTo(map);
-      m.bindPopup('<div class="lp-name">'+t.name+'</div><span class="lp-rank mid">🌤 EXPOSÉ '+(i+1)+'</span><div class="lp-score mid">Score : '+t.score+'/100</div><div class="lp-detail">📍 '+(t.cuisine||t.type||'terrasse')+'</div>');
-      midMarkers.push(m);
-    });
-  }
-
-  // ── UI ──
-  function setStep(msg,pct){document.getElementById('loadStep').textContent=msg;document.getElementById('loadFill').style.width=pct+'%';}
-  function setLoading(v){document.getElementById('overlay').classList.toggle('hide',!v);if(v)document.getElementById('loadFill').style.width='0%';}
-  function toast(msg,dur){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},dur||3000);}
-
-  function updateClock() {
-    var now=new Date();
-    document.getElementById('clock').textContent=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-    if(solar&&userLat){
-      solar=solarPos(now,userLat,userLon);
-      document.getElementById('sunPos').textContent=solar.altitude>0?(solar.altitude.toFixed(1)+'° alt · '+solar.azimuth.toFixed(0)+'° az'):'Coucher de soleil';
-      var ss=sunriseSunset(now,userLat,userLon);
-      if(ss){var hr=now.getHours()+now.getMinutes()/60,prog=Math.max(0,Math.min(1,(hr-ss.rise)/(ss.set-ss.rise)));document.getElementById('sunDot').setAttribute('cx',8+prog*384);document.getElementById('sunDot').setAttribute('cy',Math.max(2,36-Math.sin(prog*Math.PI)*34));}
-    }
-  }
-
-  function switchTab(tab) {
-    activeTab=tab;
-    ['Map','List','Mid'].forEach(function(n){document.getElementById('tab'+n).classList.toggle('active',tab===n.toLowerCase());});
-    var onMap=tab==='map';
-    document.getElementById('map').style.display=onMap?'block':'none';
-    document.getElementById('listPanel').style.display=onMap?'none':'flex';
-    ['btnLocate','btnRefresh','btnCity'].forEach(function(id){document.getElementById(id).style.display=onMap?'flex':'none';});
-    if(tab==='list') renderList(allTop,true);
-    if(tab==='mid') renderList(allMid,false);
-    if(onMap&&map) setTimeout(function(){map.invalidateSize();},50);
-  }
-
-  function renderList(data, isTop) {
-    var panel=document.getElementById('listPanel');
-    if(!data||!data.length){
-      panel.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:30px 20px">'+(currentCity?'Aucune terrasse trouvée':'Tape le nom d\'une ville puis appuie sur OK 👆')+'</div>';
-      return;
-    }
-    var cls=isTop?'top':'mid',lbl=isTop?'☀ TOP 20 — MEILLEURE EXPOSITION':'🌤 TOP 20 — BONNE EXPOSITION';
-    panel.innerHTML='<div class="section-head"><div class="section-label '+cls+'">'+lbl+'</div><div class="section-count">'+data.length+' terrasses · '+(currentCity||'')+'</div></div>';
-    data.forEach(function(t,i){
-      var c=document.createElement('div'); c.className='t-card';
-      c.innerHTML='<div class="t-rank-num '+cls+'">'+(i+1)+'</div><div class="t-info"><div class="t-name">'+t.name+'</div><div class="t-sub">'+(t.cuisine||t.type||'terrasse')+'</div></div><div class="t-score-bar"><div class="score-num '+cls+'">'+t.score+'</div><div class="bar '+cls+'" style="width:'+t.score+'%"></div></div>';
-      c.onclick=function(){switchTab('map');if(map)map.flyTo([t.lat,t.lon],17,{duration:0.8});var ms=isTop?topMarkers:midMarkers;setTimeout(function(){if(ms[i])ms[i].openPopup();},900);};
-      panel.appendChild(c);
-    });
-  }
-
-  // ── Actions ──
-  async function runAnalysis(cityName, refLat, refLon) {
-    setLoading(true);
-    try{
-      var res=await fetchCityData(cityName);
-      currentCity=res.cName; userLat=refLat||res.cityLat; userLon=refLon||res.cityLon;
-      solar=solarPos(new Date(),userLat,userLon); updateClock();
-      if(!res.terrasses.length){setLoading(false);toast('Aucune terrasse OSM à '+res.cName);allTop=[];allMid=[];return;}
-      var ranked=rankTerrasses(res.terrasses,solar);
-      allTop=ranked.top20; allMid=ranked.mid20;
-      setStep('Affichage de la carte...', 90);
-      if(leafletOk){initMap(userLat,userLon);placeMarkers(allTop,allMid);}
-      setLoading(false);
-      toast(res.cName+' · ☀ '+allTop.length+' top · 🌤 '+allMid.length+' exposées');
-      if(activeTab==='list') renderList(allTop,true);
-      if(activeTab==='mid') renderList(allMid,false);
-    }catch(e){
-      setLoading(false);
-      // Montrer erreur dans la liste
-      document.getElementById('map').style.display='none';
-      document.getElementById('listPanel').style.display='flex';
-      document.getElementById('listPanel').innerHTML='<div class="err-box">⚠️ <strong>Erreur réseau</strong><br><br>'+e.message+'<br><br>💡 Conseils :<br>• Vérifie ta connexion WiFi ou 4G<br>• Désactive un éventuel VPN<br>• Réessaie dans quelques secondes</div>';
-      activeTab='list';
-      document.getElementById('tabList').classList.add('active');
-      document.getElementById('tabMap').classList.remove('active');
-    }
-  }
-
-  function toggleCityBar(){var b=document.getElementById('cityBar');b.classList.toggle('show');if(b.classList.contains('show'))document.getElementById('cityInput').focus();}
-  function searchCity(){var n=document.getElementById('cityInput').value.trim();if(!n)return;document.getElementById('cityBar').classList.remove('show');runAnalysis(n);}
-
-  function locateUser() {
-    if(!navigator.geolocation){toast('GPS non disponible');return;}
-    setLoading(true);setStep('Localisation GPS...',5);
-    navigator.geolocation.getCurrentPosition(async function(pos){
-      userLat=pos.coords.latitude;userLon=pos.coords.longitude;
-      if(leafletOk){
-        initMap(userLat,userLon);
-        if(userMarker)map.removeLayer(userMarker);
-        userMarker=L.circleMarker([userLat,userLon],{radius:8,fillColor:'#FF6B00',fillOpacity:0.9,color:'white',weight:2}).addTo(map);
-      }
-      try{
-        var r=await fetch('https://nominatim.openstreetmap.org/reverse?lat='+userLat+'&lon='+userLon+'&format=json',{headers:{'Accept-Language':'fr'}});
-        var d=await r.json();
-        var city=d.address&&(d.address.city||d.address.town||d.address.village||d.address.municipality);
-        if(city)await runAnalysis(city,userLat,userLon);
-        else{setLoading(false);toast('Ville non détectée — tape son nom');toggleCityBar();}
-      }catch(e){setLoading(false);toast('Reverse geocoding échoué');}
-    },function(){setLoading(false);toast('GPS refusé — active la localisation');},{enableHighAccuracy:true,timeout:12000});
-  }
-
-  // ── Init ──
-  function init(){
-    setLoading(false);updateClock();setInterval(updateClock,60000);
-    document.getElementById('btnLocate').onclick=locateUser;
-    document.getElementById('btnRefresh').onclick=function(){if(currentCity)runAnalysis(currentCity,userLat,userLon);else locateUser();};
-    document.getElementById('btnCity').onclick=toggleCityBar;
-    document.getElementById('cityBtn').onclick=searchCity;
-    document.getElementById('cityInput').addEventListener('keydown',function(e){if(e.key==='Enter')searchCity();});
-    document.getElementById('tabMap').onclick=function(){switchTab('map');};
-    document.getElementById('tabList').onclick=function(){switchTab('list');};
-    document.getElementById('tabMid').onclick=function(){switchTab('mid');};
-  }
-
-  return {
-    leafletReady: function(){leafletOk=true;console.log('Leaflet prêt');},
-    init: init
+function addRequest() {
+  const type = pick(TYPES);
+  const zone = pick(ZONES);
+  const req = {
+    id: nextId++,
+    type: type.key,
+    zone,
+    terrace: type.key === "CARTE" ? pick(TERRASSES) : null,
+    sun: rnd(58, 98),
+    time: Date.now(),
+    lat: (48.85 + (Math.random() - 0.5) * 0.12).toFixed(4),
+    lng: (2.35 + (Math.random() - 0.5) * 0.15).toFixed(4),
   };
-})();
 
-document.addEventListener('DOMContentLoaded', function(){ APP.init(); });
+  requests.unshift(req);
+  if (requests.length > 50) requests.pop();
+  total++;
+  newIds.add(req.id);
+  rpsLog.push(Date.now());
+
+  setTimeout(() => newIds.delete(req.id), 2500);
+
+  // Update type bar counts
+  renderTypeBar();
+
+  // Prepend row to feed
+  prependRow(req);
+  updateStats();
+
+  // Badge if not on live tab
+  if (activeTab !== 'live') {
+    newCount++;
+    const badge = document.getElementById('new-badge');
+    badge.style.display = 'inline-block';
+    badge.textContent = newCount > 99 ? '99+' : newCount;
+  }
+
+  // Schedule next
+  setTimeout(addRequest, rnd(2000, 5500));
+}
+
+// ─── Tab switcher ─────────────────────────────────────────────────────────────
+function setTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    const tabs = ['carte','top20','exposees','live'];
+    el.classList.toggle('active', tabs[i] === tab);
+  });
+
+  if (tab === 'live') {
+    newCount = 0;
+    const badge = document.getElementById('new-badge');
+    badge.style.display = 'none';
+    badge.textContent = '0';
+    renderAll();
+  } else {
+    // Simulate switching back to map/list view with a placeholder
+    feed.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  height:100%;padding:40px;text-align:center;color:rgba(255,255,255,0.2);">
+        <div style="font-size:48px;margin-bottom:16px">${tab==='carte'?'🗺':tab==='top20'?'☀':'🌤'}</div>
+        <div style="font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:0.1em;margin-bottom:8px">
+          ${tab.toUpperCase()} VIEW
+        </div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:11px">
+          Intégrez votre vue existante ici
+        </div>
+      </div>`;
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+renderAll();
+setTimeout(addRequest, rnd(2000, 4000));
 </script>
 </body>
 </html>
